@@ -1,0 +1,2 @@
+Connected Component 130, number of pixels = 12364
+Connected Component 110, number of pixels = 8172
