@@ -70,27 +70,27 @@ def hourly_average(data:list, monitoring_station:str, pollutant:str) -> list:
 
     result = []
 
-    # if monitoring_station in possible_stations: # check if the station exists although this is unnecessary because data is already supplied so why have it ?
-    #     collect = [0] * 24
-    #     counter = [0] * 24
+    if monitoring_station in possible_stations: # check if the station exists although this is unnecessary because data is already supplied so why have it ?
+        collect = [0] * 24
+        counter = [0] * 24
 
-    #     for time, value in zip(data.time, data.__getitem__(pollutant)):
-    #         index = int(time.split(":")[0]) - 1 # get the index from the time, so all of the middays get added together
-    #         if value != "No data": # check if there are any values that dont have any data corresponding
-    #             collect[index] += float(value) # add the value to the others in the same hour
-    #             counter[index] += 1 # log how many times added values together
+        for time, value in zip(data.time, data.__getitem__(pollutant)):
+            index = int(time.split(":")[0]) - 1 # get the index from the time, so all of the middays get added together
+            if value != "No data": # check if there are any values that dont have any data corresponding
+                collect[index] += float(value) # add the value to the others in the same hour
+                counter[index] += 1 # log how many times added values together
 
-    #     for x, y in zip(collect, counter): # calculate all of the averages for each month
-    #         if y != 0: # maybe no values were collected, cannot divide by 0
-    #             result.append(x / y) # calculate the average
-    #         else:
-    #             result.append(None) # place in placeholder to represent no values collected
-    #     return result # return the averages in neat array format
-    # else:
-    #     raise("not a valid monitoring station try (Harlington, Marylebone Road, N Kensington)")
+        for x, y in zip(collect, counter): # calculate all of the averages for each month
+            if y != 0: # maybe no values were collected, cannot divide by 0
+                result.append(x / y) # calculate the average
+            else:
+                result.append(None) # place in placeholder to represent no values collected
+        return result # return the averages in neat array format
+    else:
+        raise("not a valid monitoring station try (Harlington, Marylebone Road, N Kensington)")
 
-    arr = [data[i::24] for i in range(24)]
-    print(arr)
+    # arr = [data[i::24] for i in range(24)]
+    # print(arr)
 
 
 
@@ -196,12 +196,12 @@ def fill_missing_data(data:list, new_value:float,  monitoring_station:str, pollu
 
 
 if __name__ == "__main__":
-    possible_stations = ["Marylebone Road"]
+    possible_stations = ["Harlington"]
     possible_pollutants = ["no"]
 
     for pollutant in possible_pollutants:
         for station in possible_stations:
             file = pd.read_csv(f"data/Pollution-London {station}.csv")
-            a = monthly_average(data=file, monitoring_station=station, pollutant=pollutant)
+            a = count_missing_data(data=file, monitoring_station=station, pollutant=pollutant)
             print(a)
             
