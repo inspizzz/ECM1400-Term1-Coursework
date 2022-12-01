@@ -105,6 +105,7 @@ def detect_connected_components2(*args, **kwargs):
     with open("./data/output/cc-output-2a.txt", "a") as f: # open the file in append mode
         print(f"Total number of connected components = {len(components_counter)}\n") # output total number of components
         f.writelines([f"Total number of connected components = {len(components_counter)}\n"])
+
     return visited
 
 
@@ -214,5 +215,5 @@ if __name__ == "__main__":
     # cyan = find_cyan_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
 
     mark = detect_connected_components2(red)
-    detect_connected_components_sorted(mark)
+    # detect_connected_components_sorted(mark)
 

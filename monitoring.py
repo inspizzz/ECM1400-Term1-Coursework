@@ -15,7 +15,7 @@ import json
 from PIL import Image
 import threading
 
-# -0.534210,51.272226,0.291138,51.717670
+
 class Display(tk.Tk):
     def __init__(self) -> None:
         super().__init__()

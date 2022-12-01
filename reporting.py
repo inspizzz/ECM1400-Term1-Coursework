@@ -124,12 +124,6 @@ def monthly_average(data:list, monitoring_station:str, pollutant:str) -> list:
         return result # return the averages in neat array format
     else:
         raise("not a valid monitoring station try (Harlington, Marylebone Road, N Kensington)")
-    months = [0] * 12
-    print(months)
-    
-    [months.__add__(months[int(i[5:7])])for i in data.date]
-    
-    print(months)
     
     
 def peak_hour_date(data:list, date:str, monitoring_station:str, pollutant:str) -> str:
