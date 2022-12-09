@@ -1,7 +1,5 @@
-from skimage import filters, io
-from matplotlib import pyplot as plt
+from skimage import io
 import numpy as np
-import os
 
 
 filename = "data/map.png"
@@ -214,6 +212,6 @@ if __name__ == "__main__":
     red = find_red_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
     # cyan = find_cyan_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
 
-    mark = detect_connected_components2(red)
+    #mark = detect_connected_components2(red)
     # detect_connected_components_sorted(mark)
 
