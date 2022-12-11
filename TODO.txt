@@ -1,0 +1,18 @@
+reporting
+
+
+intelligence
+    - clean up the annotations, make them on the line above, rather than on the line itself
+
+monitoring
+    - add features for random site code and species in the graph
+    - add closing and opening between he map and the graph
+    - add tests for all functions ... pain
+
+main
+    - code it
+    - add tests for each function if possible
+
+utils
+     - check it
+     - add tests for each function inside of here
