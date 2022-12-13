@@ -2,12 +2,12 @@ reporting
 
 
 intelligence
-    - clean up the annotations, make them on the line above, rather than on the line itself
 
 monitoring
     - add features for random site code and species in the graph
     - add closing and opening between he map and the graph
     - add tests for all functions ... pain
+    - add features to display information in the terminal as well, so that it can be marked too ( into the display class )
 
 main
     - code it
