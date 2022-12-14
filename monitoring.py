@@ -4,7 +4,8 @@ import requests
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-import threading
+import random
+
 
 class Display(tk.Tk): # done
 	'''
@@ -34,6 +35,8 @@ class Display(tk.Tk): # done
 		# set variables
 		self.WIDTH = 400
 		self.HEIGHT = 400
+		self.TERMINAL_WIDTH = 50
+		self.TERMINAL_HEIGHT = 10
 
 		# create the tkinter window
 		self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
@@ -42,6 +45,8 @@ class Display(tk.Tk): # done
 
 		# set more variables
 		self.running = True
+
+		self.terminal = False
 		self.axis = False
 		self.map = False
 
@@ -57,8 +62,218 @@ class Display(tk.Tk): # done
 
 
 	## ----------------------------------------------------
+	## ------------------- TERMINAL AXIS ------------------
+	## ----------------------------------------------------
+
+	def createTerminalAxis(self) -> None:
+		'''
+		purpose:
+			- create the axis
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		# check if nothing else is showing
+		if not self.map or not self.axis:
+
+			# set variable
+			self.terminal = True
+
+			# create the axis
+			self.arr = [["+" if j == 0 and i == self.TERMINAL_HEIGHT - 1 else "|" if j == 0 else "-" if i == self.TERMINAL_HEIGHT - 1 else " " for j in range(0, self.TERMINAL_WIDTH)] for i in range(0, self.TERMINAL_HEIGHT)]
+
+			# create the axis frame
+			self.axisFrame = tk.Frame(self, width=self.WIDTH//2, height=self.HEIGHT-100, bg="blue")
+			self.axisFrame.pack(side="left", fill="both", expand=True)
+
+			# create the menu frame
+			self.mapFrame = tk.Frame(self, width=self.WIDTH//2, height=100, bg="red")
+			self.mapFrame.pack(side="right", fill="both", expand=True)
+
+			# create axis button
+			self.axisButton = tk.Button(self.axisFrame, text="axis", command=self.switchTerminalAxis)
+			self.axisButton.pack(expand=True)
+
+			# create map button
+			self.mapButton = tk.Button(self.mapFrame, text="map", command=self.switchTerminalMap)
+			self.mapButton.pack(expand=True)
+		else:
+
+			# show error message
+			print("cannot create axis")
+
+	def showTerminalAxis(self) -> None:
+		'''
+		purpose:
+			- show the same axis in the terminal
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		# display the axis
+		for i in self.arr:
+			for j in i:
+				print(j, end="")
+			print()
+
+	def addTerminalAxisPoint(self, x:int, y:int) -> None:
+		'''
+		purpose:
+			- add a point to the axis in the terminal
+
+		arguments:
+			- self
+			- x: x coordinate
+			- y: y coordinate
+
+		returns:
+			- None
+		'''
+
+		if self.terminal:
+
+			# add a point to the axis
+			self.arr[self.TERMINAL_HEIGHT - 1 - y][x] = "x"
+		else:
+
+			# show error message
+			print("cannot add point, axis is not open")
+
+	def plotDataTerminalAxis(self, site:str, species:str) -> None:
+		'''
+		purpose:
+			- plot the data on the axis in the terminal
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+		if self.terminal:
+
+			# get species data
+			speciesData = getSpecies()
+
+			# if site and species are valid
+			if site in list(speciesData.keys()):
+				if species in speciesData[site]:
+
+					# get the data for that specific site and species in the past day
+					data = get_live_data_from_api(site_code=site, species_code=species)
+
+					# iterate for every data value
+					for i in data["RawAQData"]["Data"]:
+
+						# check if not empty
+						if i["@Value"] != "":
+
+							# unpack and add the point to the graph
+							date = int(i["@MeasurementDateGMT"].split(" ")[1].split(":")[0])
+							value = int(float(i["@Value"]))
+
+							date = self.translate(date, 0, 24, 0, self.TERMINAL_WIDTH - 1)
+							value = self.translate(value, 0, 100, 0, self.TERMINAL_HEIGHT - 1)
+
+							self.addTerminalAxisPoint(x=int(date) + 1, y=int(value) + 1)
+
+			# show the new and updated axis
+			self.showTerminalAxis()
+
+			# clear ready for next data
+			self.createTerminalAxis()
+
+		else:
+
+			# show error message
+			print("cannot plot data, axis is not open")
+
+	def closeTerminalAxis(self) -> None:
+		'''
+		purpose:
+			- close the terminal axis
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		if self.terminal:
+
+			# forget all frames and buttons
+			self.axisFrame.pack_forget()
+			self.mapFrame.pack_forget()
+			self.axisButton.pack_forget()
+			self.mapButton.pack_forget()
+
+			# stop displaying the terminal
+			self.terminal = False
+		else:
+
+			# show error message
+			print("cannot close axis, axis is not open")
+
+	def switchTerminalAxis(self) -> None:
+		'''
+		purpose:
+			- switch between the terminal axis and the map
+		
+		arguments:
+			- self
+			
+		returns:
+			- None
+		'''
+		if self.terminal:
+
+			# stop displaying the terminal
+			self.closeTerminalAxis()
+
+			# start displaying the map
+			self.showAxis()
+		else:
+			# show error message
+			print("cannot switch terminal axis, axis is not open")
+
+	def switchTerminalMap(self) -> None:
+		'''
+		purpose:
+			- switch between the terminal axis and the axis
+		
+		arguments:
+			- self
+			
+		returns:
+			- None
+		'''
+
+		if self.terminal:
+
+			# stop displaying the terminal
+			self.closeTerminalAxis()
+
+			# start displaying the axis
+			self.showMap()
+		else:
+			
+			# show error message
+			print("cannot switch terminal map, map is not open")
+
+
+	## ----------------------------------------------------
 	## ----------------------- AXIS -----------------------
 	## ----------------------------------------------------
+
 	def showAxis(self) -> None:
 		'''
 		purpose:
@@ -74,45 +289,60 @@ class Display(tk.Tk): # done
 			- None
 		'''
 
-		self.axis = True
+		# check if not already displaying
+		if not self.terminal and not self.map:
+			self.axis = True
 
-		# create the axis frame
-		self.axisFrame = tk.Frame(self, width=self.WIDTH, height=self.HEIGHT-100)
-		self.axisFrame.pack(side="top", fill="both", expand=True)
-		self.axisFrame.bind("<Configure>", self.configureAxis)
+			# create the axis frame
+			self.axisFrame = tk.Frame(self, width=self.WIDTH, height=self.HEIGHT-100)
+			self.axisFrame.pack(side="top", fill="both", expand=True)
+			self.axisFrame.bind("<Configure>", self.configureAxis)
 
-		# create the menu frame
-		self.menuFrame = tk.Frame(self, width=self.WIDTH, height=100)
-		self.menuFrame.pack(side="bottom", fill="x")
-		self.menuFrame.bind("<Configure>", self.configureMenu)
+			# create the menu frame
+			self.menuFrame = tk.Frame(self, width=self.WIDTH, height=100)
+			self.menuFrame.pack(side="bottom", fill="x")
+			self.menuFrame.bind("<Configure>", self.configureMenu)
 
-		# create the axis canvas
-		self.axisCanvas = tk.Canvas(self.axisFrame, width=self.WIDTH, height=self.HEIGHT-100)
-		self.axisCanvas.pack(side="top", fill="both", expand=True)
+			# create the axis canvas
+			self.axisCanvas = tk.Canvas(self.axisFrame, width=self.WIDTH, height=self.HEIGHT-100)
+			self.axisCanvas.pack(side="top", fill="both", expand=True)
 
-		# create the menu canvas
-		self.menuCanvas = tk.Canvas(self.menuFrame, width=self.WIDTH, height=100)
-		self.menuCanvas.pack(side="bottom", fill="both", expand=True)
+			# create the menu canvas
+			self.menuCanvas = tk.Canvas(self.menuFrame, width=self.WIDTH, height=100)
+			self.menuCanvas.pack(side="bottom", fill="both", expand=True)
 
-		# create the axis
-		self.x_axis = self.axisCanvas.create_line(50, self.HEIGHT-50, self.WIDTH-50, self.HEIGHT-50, fill="black", width=2)
-		self.y_axis = self.axisCanvas.create_line(50, self.HEIGHT-50, 50, 50, fill="black", width=2)
+			# create the axis
+			self.x_axis = self.axisCanvas.create_line(50, self.HEIGHT-50, self.WIDTH-50, self.HEIGHT-50, fill="black", width=2)
+			self.y_axis = self.axisCanvas.create_line(50, self.HEIGHT-50, 50, 50, fill="black", width=2)
 
-		# create the menu
-		self.site = tk.Text(self.menuCanvas, width=10, height=1)
-		self.site.place(x=10, y=10)
-		
-		self.species = tk.Text(self.menuCanvas, width=10, height=1)
-		self.species.place(x=110, y=10)
-		
-		self.submitButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="submit", command=self.submit)
-		self.submitButton.place(x=210, y=10)
+			# create the menu
+			self.site = tk.Text(self.menuCanvas, width=10, height=1)
+			self.site.place(x=10, y=10)
+			
+			self.species = tk.Text(self.menuCanvas, width=10, height=1)
+			self.species.place(x=100, y=10)
+			
+			self.submitButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="submit", command=self.submit)
+			self.submitButton.place(x=180, y=10)
 
-		self.clearButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="clear", command=self.clear)
-		self.clearButton.place(x=310, y=10)
+			self.randomButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="random", command=self.axisPickRandom)
+			self.randomButton.place(x=230, y=10)
 
-		self.axisCanvas.update()
-		self.clear()
+			self.clearButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="clear", command=self.clear)
+			self.clearButton.place(x=280, y=10)
+
+			self.mapButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="map", command=self.switchAxisMap)
+			self.mapButton.place(x=180, y=40)
+
+			self.terminalButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="terminal", command=self.switchAxisTerminal)
+			self.terminalButton.place(x=230, y=40)
+
+			self.axisCanvas.update()
+			self.clear()
+		else:
+
+			# show error message
+			print("cannot show axis while map or terminal is active")
 
 	def configureAxis(self, event) -> None:
 		'''
@@ -213,34 +443,113 @@ class Display(tk.Tk): # done
 			- None
 		'''
 
-		# get species data
-		speciesData = getSpecies()
+		if self.axis:
 
-		# grab the site and species from the text boxes
-		site = self.site.get(1.0, tk.END).rstrip()
-		species = self.species.get(1.0, tk.END).rstrip()
+			# get species data
+			speciesData = getSpecies()
 
-		# if site and species are valid
-		if site in list(speciesData.keys()):
-			if species in speciesData[site]:
+			# grab the site and species from the text boxes
+			site = self.site.get(1.0, tk.END).rstrip()
+			species = self.species.get(1.0, tk.END).rstrip()
 
-				# get the data for that specific site and species
-				data = get_live_data_from_api(site_code=site, species_code=species, start_date="2022-11-28", end_date="2022-11-29")
+			# if site and species are valid
+			if site in list(speciesData.keys()):
+				if species in speciesData[site]:
 
-				# iterate for every data value
-				for i in data["RawAQData"]["Data"]:
+					# get the data for that specific site and species
+					data = get_live_data_from_api(site_code=site, species_code=species, start_date="2022-11-28", end_date="2022-11-29")
+					print(data)
+					empty = True
+					# iterate for every data value
+					for i in data["RawAQData"]["Data"]:
 
-					# check if not empty
-					if i["@Value"] != "":
+						# check if not empty
+						if i["@Value"] != "":
 
-						# unpack and add the point to the graph
-						date = int(i["@MeasurementDateGMT"].split(" ")[1].split(":")[0])
-						value = int(float(i["@Value"]))
+							# unpack and add the point to the graph
+							date = int(i["@MeasurementDateGMT"].split(" ")[1].split(":")[0])
+							value = int(float(i["@Value"]))
 
-						date = self.translate(date, 0, 24, 0, self.axisCanvas.winfo_width() - 100)
-						value = self.translate(value, 0, 100, 0, self.axisCanvas.winfo_height() - 100)
+							date = self.translate(date, 0, 24, 0, self.axisCanvas.winfo_width() - 100)
+							value = self.translate(value, 0, 100, 0, self.axisCanvas.winfo_height() - 100)
 
-						self.addPoint((date, value), color="black")
+							self.addPoint((date, value), color="black")
+
+							empty = False
+
+					if empty:
+						self.submitButton.config(bg="red")
+						self.after(ms=2000, func=lambda: self.submitButton.config(bg="white"))
+
+	def axisPickRandom(self) -> None:
+		'''
+		purpose:
+			- pick a random site and species
+			- get the data from the api
+			- add the data to the graph
+
+		arguments:
+			- self
+		
+		returns:
+			- None
+		'''
+		
+		if self.axis:
+
+			# get species data
+			speciesData = getSpecies()
+
+			# pick a random site and species
+			site = random.choice(list(speciesData.keys()))
+			species = random.choice(speciesData[site])
+
+			# set the text boxes to the random site and species
+			self.site.delete(1.0, tk.END)
+			self.site.insert(tk.END, site)
+
+			self.species.delete(1.0, tk.END)
+			self.species.insert(tk.END, species)
+
+	def switchAxisMap(self) -> None:
+		'''
+		purpose:
+			- close the axis and show the map
+
+		arguments:
+			- self
+		
+		returns:
+			- None
+		'''
+		
+		if self.axis:
+
+			# axis is not anymore showing
+			self.closeAxis()
+
+			# show the map frames
+			self.showMap()
+
+	def switchAxisTerminal(self) -> None:
+		'''
+		purpose:
+			- close the axis and show the terminal
+
+		arguments:
+			- self
+		
+		returns:
+			- None
+		'''
+
+		if self.axis:
+			
+			# axis is not anymore showing
+			self.closeAxis()
+
+			# show the terminal frames
+			self.createTerminalAxis()
 
 	def clear(self) -> None:
 		'''
@@ -256,15 +565,17 @@ class Display(tk.Tk): # done
 			- None
 		'''
 
-		# reset the points to the origin of the graph
-		self.points = [(50, self.axisCanvas.winfo_height() - 50)]
+		if self.axis:
 
-		# for every line delete it 
-		for i in self.lines:
-			self.axisCanvas.delete(i)
-		
-		# reset the lines variable
-		self.lines = []
+			# reset the points to the origin of the graph
+			self.points = [(50, self.axisCanvas.winfo_height() - 50)]
+
+			# for every line delete it 
+			for i in self.lines:
+				self.axisCanvas.delete(i)
+			
+			# reset the lines variable
+			self.lines = []
 
 	def closeAxis(self) -> None:
 		'''
@@ -279,17 +590,27 @@ class Display(tk.Tk): # done
 			- None
 		'''
 
-		# forget both canvases
-		self.axisCanvas.pack_forget()
-		self.menuCanvas.pack_forget()
+		if self.axis:
 
-		# set axis to false so that program knows that the axis is no longer being shown to the user
-		self.axis = False
+			# forget both canvases
+			self.axisFrame.pack_forget()
+			self.menuFrame.pack_forget()
+			self.axisCanvas.pack_forget()
+			self.site.place_forget()
+			self.species.place_forget()
+			self.submitButton.place_forget()
+			self.clearButton.place_forget()
+			self.mapButton.place_forget()
+			self.terminalButton.place_forget()
+
+			# set axis to false so that program knows that the axis is no longer being shown to the user
+			self.axis = False
 
 
-	## --------------------------------------------------
+	## ---------------------------------------------------
 	## ----------------------- MAP -----------------------
 	## ---------------------------------------------------
+	
 	def showMap(self) -> None:
 		'''
 		purpose:
@@ -305,39 +626,51 @@ class Display(tk.Tk): # done
 			- None
 		'''
 
-		self.map = True
+		if not self.terminal and not self.axis:
+			# set variable to true so that program knows that the map is being shown to the user
+			self.map = True
 
-		# get the image 
-		self.image = tk.PhotoImage(file="data/london.gif")
-		
-		# set the width and height based on the image 
-		self.WIDTH = self.image.width()
-		self.HEIGHT = self.image.height() + 100
-		self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
+			# get the image 
+			self.image = tk.PhotoImage(file="data/london.gif")
+			
+			# set the width and height based on the image 
+			self.WIDTH = self.image.width()
+			self.HEIGHT = self.image.height() + 100
+			self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
 
-		# create all widgets assosciated with the map
-		self.mapFrame = tk.Frame(self, width=self.WIDTH, height=self.HEIGHT-100)
-		self.mapFrame.pack(side="top", fill="both", expand=True)
-		self.mapFrame.bind("<Configure>", self.configureMap)
+			# create all widgets assosciated with the map
+			self.mapFrame = tk.Frame(self, width=self.WIDTH, height=self.HEIGHT-100)
+			self.mapFrame.pack(side="top", fill="both", expand=True)
+			self.mapFrame.bind("<Configure>", self.configureMap)
 
-		self.mapMenuFrame = tk.Frame(self, width=self.WIDTH, height=100	)
-		self.mapMenuFrame.pack(side="bottom", fill="both", expand=True)
+			self.mapMenuFrame = tk.Frame(self, width=self.WIDTH, height=100	)
+			self.mapMenuFrame.pack(side="bottom", fill="both", expand=True)
 
-		self.mapCanvas = tk.Canvas(self.mapFrame, width=self.WIDTH, height=self.HEIGHT-100)
-		self.imageId = self.mapCanvas.create_image(0, 0, anchor=tk.NW, image=self.image)
-		self.mapCanvas.pack(side="top", fill="both", expand=True)
+			self.mapCanvas = tk.Canvas(self.mapFrame, width=self.WIDTH, height=self.HEIGHT-100)
+			self.imageId = self.mapCanvas.create_image(0, 0, anchor=tk.NW, image=self.image)
+			self.mapCanvas.pack(side="top", fill="both", expand=True)
 
-		self.mapSpecies = tk.Text(self.mapMenuFrame, width=10, height=1)
-		self.mapSpecies.place(x=50, y=40)
+			self.mapSpecies = tk.Text(self.mapMenuFrame, width=10, height=1)
+			self.mapSpecies.place(x=50, y=40)
 
-		self.mapDays = tk.Text(self.mapMenuFrame, width=10, height=1)
-		self.mapDays.place(x=150, y=40)
+			self.mapDays = tk.Text(self.mapMenuFrame, width=10, height=1)
+			self.mapDays.place(x=150, y=40)
 
-		self.mapSubmitButton = tk.Button(self.mapMenuFrame, width=5, height=1, relief=tk.SOLID, command=self.mapSubmit, text="Submit")
-		self.mapSubmitButton.place(x=250, y=40)
+			self.mapSubmitButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, command=self.mapSubmit, text="Submit")
+			self.mapSubmitButton.place(x=250, y=40)
 
-		self.mapClearButton = tk.Button(self.mapMenuFrame, width=5, height=1, relief=tk.SOLID, command=self.mapClear, text="Clear")
-		self.mapClearButton.place(x=350, y=40)
+			self.mapClearButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, command=self.mapClear, text="Clear")
+			self.mapClearButton.place(x=320, y=40)
+
+			self.mapAxisButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, text="axis", command=self.switchMapAxis)
+			self.mapAxisButton.place(x=390, y=40)
+
+			self.mapTerminalButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, text="terminal", command=self.switchMapTerminal)
+			self.mapTerminalButton.place(x=460, y=40)
+		else:
+
+			# show error message
+			print("cannot show map when terminal or axis is open")
 
 	def configureMap(self, event) -> None:
 		'''
@@ -379,29 +712,32 @@ class Display(tk.Tk): # done
 		returns:
 			- None
 		'''
+		if self.map:
+			try:
 
-		try:
-			# get the species and the days
-			species = self.mapSpecies.get(1.0, tk.END).rstrip()
-			days = int(self.mapDays.get(1.0, tk.END).rstrip())
+				# get all species
+				speciesData = getSpecies()
 
-			# check if species is valid
-			if species not in self.species:
-				return
+				# get the species and the days
+				species = self.mapSpecies.get(1.0, tk.END).rstrip()
+				days = int(self.mapDays.get(1.0, tk.END).rstrip())
 
-			# get the data and coords
-			data, locations = getCoordsAndData(species=species, days=days)
+				# get the data and coords
+				data, locations = getCoordsAndData(species=species, days=days)
 
-			# iterate over the data
-			for key, value in zip(list(data.keys()), list(data.values())):
-				# get the latitude and longitude
-				lat, lon = locations[key]
-				# convert to x and y coordinates
-				x, y = self.coordToXY(float(lat), float(lon))
-				# draw a circe at that location
-				self.addCircle(x, y, color="black", size=value)
-		except:
-			print("error caught")
+				# iterate over the data
+				for key, value in zip(list(data.keys()), list(data.values())):
+
+					# get the latitude and longitude
+					lat, lon = locations[key]
+
+					# convert to x and y coordinates
+					x, y = self.coordToXY(float(lat), float(lon))
+
+					# draw a circe at that location
+					self.addCircle(x, y, color="black", size=value)
+			except:
+				print("error caught")
 		
 	def mapClear(self) -> None:
 		'''
@@ -494,9 +830,52 @@ class Display(tk.Tk): # done
 		self.mapDays.place_forget()
 		self.mapSubmitButton.place_forget()
 		self.mapClearButton.place_forget()
+		self.mapAxisButton.place_forget()
+		self.mapTerminalButton.place_forget()
 
 		# set map to false so that the program knows that the map is not being displayed anymore
 		self.map = False
+
+	def switchMapAxis(self) -> None:
+		'''
+		purpose:
+			- switch from map to axis view
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		# close the map
+		self.closeMap()
+
+		# opem the axis view
+		self.showAxis()
+
+	def switchMapTerminal(self) -> None:
+		'''
+		purpose:
+			- switch from map to terminal view
+
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		# close the map
+		self.closeMap()
+
+		# open the terminal view
+		self.createTerminalAxis()
+
+
+	## ---------------------------------------------------
+	## ---------------------- OTHER ----------------------
+	## ---------------------------------------------------
 
 	def translate(self, value, leftMin, leftMax, rightMin, rightMax) -> float:
 		'''
@@ -558,6 +937,7 @@ class Display(tk.Tk): # done
 
 		# while the window is not closed (running is true)
 		while self.running:
+
 			# update the window
 			self.update()
 			self.update_idletasks()
@@ -1275,7 +1655,9 @@ def neuralNetwork() -> None: # done
 
 if __name__ == "__main__":
 	disp = Display()
-	disp.showAxis() # functionality 1, show the data on some axis in tkinter
+	disp.createTerminalAxis()
+	# disp.plotDataTerminalAxis(site="KT4", species="NO2")
+	# disp.showAxis() # functionality 1, show the data on some axis in tkinter
 	# disp.showMap() # functionarilty 2, show the data on a map in tkinter
 	disp.Update()
 

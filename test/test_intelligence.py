@@ -16,7 +16,7 @@ def test_find_red_pixels():
     '''
 
     print("testing find_red_pixels function", end=" ... ")
-    assert len(intelligence.find_red_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)) == 1140
+    assert len(intelligence.find_red_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)) == 1140
     print("find_red_pixels Passed")
 
 def test_find_cyan_pixels():
@@ -26,7 +26,7 @@ def test_find_cyan_pixels():
     '''
 
     print("testing find_red_pixels function", end=" ... ")
-    assert len(intelligence.find_red_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)) == 1140
+    assert len(intelligence.find_red_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)) == 1140
     print("find_red_pixels Passed")
 
 def test_detect_connected_components():
@@ -36,7 +36,7 @@ def test_detect_connected_components():
     '''
 
     print("testing detect_connected_components function", end=" ... ")
-    red = intelligence.find_red_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
+    red = intelligence.find_red_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
     assert len(intelligence.detect_connected_components(red)) == 1140
     print("detect_connected_components Passed")
 
@@ -48,7 +48,7 @@ def test_detect_connected_components_sorted():
     '''
 
     print("testing detect_connected_components_sorted function", end=" ... ")
-    red = intelligence.find_red_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
+    red = intelligence.find_red_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
     mark = intelligence.detect_connected_components(red)
     sorted = intelligence.detect_connected_components_sorted(mark)
 
@@ -57,7 +57,7 @@ def test_detect_connected_components_sorted():
     assert (32, 108) in list(intelligence.detect_connected_components_sorted(mark).items())
     assert (210, 4) in list(intelligence.detect_connected_components_sorted(mark).items())
 
-    cyan = intelligence.find_cyan_pixels("./data/map.png", upper_threshold=100, lower_threshold=50)
+    cyan = intelligence.find_cyan_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
     mark = intelligence.detect_connected_components(cyan)
     sorted = intelligence.detect_connected_components_sorted(mark)
 
