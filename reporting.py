@@ -1,5 +1,8 @@
 import numpy as np
 
+possible_stations = ["Harlington", "Marylebone Road", "N Kensington"]
+possible_species = ["no", "pm10", "pm25"]
+
 def daily_average(data:dict, monitoring_station:str, pollutant:str) -> list:
     '''
     purpose:
@@ -316,8 +319,6 @@ def read() -> dict: # done
 
     
 if __name__ == "__main__":
-    possible_stations = ["Harlington", "Marylebone Road", "N Kensington"]
-    possible_species = ["no", "pm10", "pm25"]
     data = read()
 
     for station in possible_stations:
