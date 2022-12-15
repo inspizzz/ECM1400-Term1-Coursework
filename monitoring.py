@@ -1307,6 +1307,9 @@ class NeuralNet2: # done
 		# constant
 		m = 10
 
+		predicted = np.array(predicted)
+		expected = np.array(expected)
+
 		# calculate the cost and reuturn, this is known as the cross entropy cost function
 		# rcross entropy is widely used in classification models, which is an axample of this implementation
 		cost = -1 / m * np.sum(np.multiply(expected, np.log(predicted)) + np.multiply((1 - expected), np.log(1 - predicted)))
@@ -1504,7 +1507,7 @@ def getAllSites() -> list: # done
 		sites.append(i["@SiteCode"])
 	return sites
 
-def getAllData(species_code:str, days:int) -> dict: # done
+def getAllData(species_code:str, days:int) -> list: # done
 	'''
 	purpose:
 		- gathers all data for every monitoring station for a given species code and days to look at into the past

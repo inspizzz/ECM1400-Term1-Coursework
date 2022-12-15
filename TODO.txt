@@ -5,7 +5,7 @@ intelligence
 
 
 monitoring
-    - add tests for all functions ... pain
+
 
 main
     - code it
