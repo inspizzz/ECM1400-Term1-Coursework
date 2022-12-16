@@ -2,6 +2,7 @@
 import pytest
 import sys
 import os
+import numpy as np
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -103,7 +104,7 @@ def test_cost_function():
 	'''
 
 	# test the function
-	assert net.cost_function([0], [0]) == 0
+	assert net.cost_function(np.asarray([[0.1], [0.1], [0.1], [0.1], [0.5], [0.1], [0.1]]), np.asarray([[0], [0], [0], [0], [1], [0], [0]])) == 0.13253102745069031
 
 def test_cost_function_deriv():
 	'''
@@ -118,7 +119,7 @@ def test_cost_function_deriv():
 	'''
 
 	# test the function
-	assert net.cost_function_deriv([0], [0]) == 0
+	assert net.cost_function_deriv(np.asarray([0.1]), np.asarray([1])) == np.asarray([-10.])
 
 def test_predict():
 	pass # cannot test without training network

@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import random
 
 
+# tonight its going to be just me and the terminal
+
+
 class Display(tk.Tk): # done
 	'''
 	purpose:
@@ -38,11 +41,6 @@ class Display(tk.Tk): # done
 		self.TERMINAL_WIDTH = 50
 		self.TERMINAL_HEIGHT = 10
 
-		# create the tkinter window
-		self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
-		self.title("display")
-		self.protocol("WM_DELETE_WINDOW", self.close)
-
 		# set more variables
 		self.running = True
 
@@ -60,7 +58,23 @@ class Display(tk.Tk): # done
 
 		self.circles = []
 
+	def initDisplay(self):
+		'''
+		purpose:
+			- initialise the tkinter window
 
+		arguments:
+			- self
+
+		returns:
+			- None
+		'''
+
+		# create the tkinter window
+		self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
+		self.title("display")
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		
 	## ----------------------------------------------------
 	## ------------------- TERMINAL AXIS ------------------
 	## ----------------------------------------------------
@@ -78,29 +92,13 @@ class Display(tk.Tk): # done
 		'''
 
 		# check if nothing else is showing
-		if not self.map or not self.axis:
+		if not self.map and not self.axis:
 
 			# set variable
 			self.terminal = True
 
 			# create the axis
 			self.arr = [["+" if j == 0 and i == self.TERMINAL_HEIGHT - 1 else "|" if j == 0 else "-" if i == self.TERMINAL_HEIGHT - 1 else " " for j in range(0, self.TERMINAL_WIDTH)] for i in range(0, self.TERMINAL_HEIGHT)]
-
-			# create the axis frame
-			self.axisFrame = tk.Frame(self, width=self.WIDTH//2, height=self.HEIGHT-100, bg="blue")
-			self.axisFrame.pack(side="left", fill="both", expand=True)
-
-			# create the menu frame
-			self.mapFrame = tk.Frame(self, width=self.WIDTH//2, height=100, bg="red")
-			self.mapFrame.pack(side="right", fill="both", expand=True)
-
-			# create axis button
-			self.axisButton = tk.Button(self.axisFrame, text="axis", command=self.switchTerminalAxis)
-			self.axisButton.pack(expand=True)
-
-			# create map button
-			self.mapButton = tk.Button(self.mapFrame, text="map", command=self.switchTerminalMap)
-			self.mapButton.pack(expand=True)
 		else:
 
 			# show error message
@@ -185,11 +183,11 @@ class Display(tk.Tk): # done
 
 							self.addTerminalAxisPoint(x=int(date) + 1, y=int(value) + 1)
 
-			# show the new and updated axis
-			self.showTerminalAxis()
+					# show the new and updated axis
+					self.showTerminalAxis()
 
-			# clear ready for next data
-			self.createTerminalAxis()
+					# clear ready for next data
+					self.createTerminalAxis()
 
 		else:
 
@@ -209,66 +207,12 @@ class Display(tk.Tk): # done
 		'''
 
 		if self.terminal:
-
-			# forget all frames and buttons
-			self.axisFrame.pack_forget()
-			self.mapFrame.pack_forget()
-			self.axisButton.pack_forget()
-			self.mapButton.pack_forget()
-
 			# stop displaying the terminal
 			self.terminal = False
 		else:
 
 			# show error message
 			print("cannot close axis, axis is not open")
-
-	def switchTerminalAxis(self) -> None:
-		'''
-		purpose:
-			- switch between the terminal axis and the map
-		
-		arguments:
-			- self
-			
-		returns:
-			- None
-		'''
-		if self.terminal:
-
-			# stop displaying the terminal
-			self.closeTerminalAxis()
-
-			# start displaying the map
-			self.showAxis()
-		else:
-			# show error message
-			print("cannot switch terminal axis, axis is not open")
-
-	def switchTerminalMap(self) -> None:
-		'''
-		purpose:
-			- switch between the terminal axis and the axis
-		
-		arguments:
-			- self
-			
-		returns:
-			- None
-		'''
-
-		if self.terminal:
-
-			# stop displaying the terminal
-			self.closeTerminalAxis()
-
-			# start displaying the axis
-			self.showMap()
-		else:
-			
-			# show error message
-			print("cannot switch terminal map, map is not open")
-
 
 	## ----------------------------------------------------
 	## ----------------------- AXIS -----------------------
@@ -333,9 +277,6 @@ class Display(tk.Tk): # done
 
 			self.mapButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="map", command=self.switchAxisMap)
 			self.mapButton.place(x=180, y=40)
-
-			self.terminalButton = tk.Button(self.menuCanvas, width=3, height=1, relief=tk.SOLID, text="terminal", command=self.switchAxisTerminal)
-			self.terminalButton.place(x=230, y=40)
 
 			self.axisCanvas.update()
 			self.clear()
@@ -458,7 +399,6 @@ class Display(tk.Tk): # done
 
 					# get the data for that specific site and species
 					data = get_live_data_from_api(site_code=site, species_code=species, start_date="2022-11-28", end_date="2022-11-29")
-					print(data)
 					empty = True
 					# iterate for every data value
 					for i in data["RawAQData"]["Data"]:
@@ -531,26 +471,6 @@ class Display(tk.Tk): # done
 			# show the map frames
 			self.showMap()
 
-	def switchAxisTerminal(self) -> None:
-		'''
-		purpose:
-			- close the axis and show the terminal
-
-		arguments:
-			- self
-		
-		returns:
-			- None
-		'''
-
-		if self.axis:
-			
-			# axis is not anymore showing
-			self.closeAxis()
-
-			# show the terminal frames
-			self.createTerminalAxis()
-
 	def clear(self) -> None:
 		'''
 		purpose:
@@ -601,7 +521,6 @@ class Display(tk.Tk): # done
 			self.submitButton.place_forget()
 			self.clearButton.place_forget()
 			self.mapButton.place_forget()
-			self.terminalButton.place_forget()
 
 			# set axis to false so that program knows that the axis is no longer being shown to the user
 			self.axis = False
@@ -664,9 +583,6 @@ class Display(tk.Tk): # done
 
 			self.mapAxisButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, text="axis", command=self.switchMapAxis)
 			self.mapAxisButton.place(x=390, y=40)
-
-			self.mapTerminalButton = tk.Button(self.mapMenuFrame, width=3, height=1, relief=tk.SOLID, text="terminal", command=self.switchMapTerminal)
-			self.mapTerminalButton.place(x=460, y=40)
 		else:
 
 			# show error message
@@ -831,7 +747,6 @@ class Display(tk.Tk): # done
 		self.mapSubmitButton.place_forget()
 		self.mapClearButton.place_forget()
 		self.mapAxisButton.place_forget()
-		self.mapTerminalButton.place_forget()
 
 		# set map to false so that the program knows that the map is not being displayed anymore
 		self.map = False
@@ -853,24 +768,6 @@ class Display(tk.Tk): # done
 
 		# opem the axis view
 		self.showAxis()
-
-	def switchMapTerminal(self) -> None:
-		'''
-		purpose:
-			- switch from map to terminal view
-
-		arguments:
-			- self
-
-		returns:
-			- None
-		'''
-
-		# close the map
-		self.closeMap()
-
-		# open the terminal view
-		self.createTerminalAxis()
 
 
 	## ---------------------------------------------------
@@ -922,8 +819,10 @@ class Display(tk.Tk): # done
 
 		# set running to false so that the while loop stops executing
 		self.running = False
+		self.destroy()
 
 	def Update(self) -> None:
+
 		'''
 		purpose:
 			- update the window
@@ -937,7 +836,6 @@ class Display(tk.Tk): # done
 
 		# while the window is not closed (running is true)
 		while self.running:
-
 			# update the window
 			self.update()
 			self.update_idletasks()
@@ -1610,7 +1508,7 @@ def getCoordsAndData(species:str, days:int) -> tuple: # done
 		siteData.setdefault(key, dif)
 
 	return siteData, locationData
-
+ 
 def neuralNetwork() -> None: # done
 	'''
 	purpose:
@@ -1624,7 +1522,7 @@ def neuralNetwork() -> None: # done
 	'''
 
 	# get all data for the past week
-	data = getAllData(species_code="NO2", days=7)
+	data = getAllData(species_code="NO2", days=1)
 
 	# generate an array for the activations and the expected outputs
 	activation = np.zeros(shape=(len(data), 24, 1), dtype=float)
@@ -1657,12 +1555,13 @@ def neuralNetwork() -> None: # done
 		print("invalid input")
 
 if __name__ == "__main__":
-	disp = Display()
-	disp.createTerminalAxis()
+	# disp = Display()
+	# disp.createTerminalAxis()
 	# disp.plotDataTerminalAxis(site="KT4", species="NO2")
 	# disp.showAxis() # functionality 1, show the data on some axis in tkinter
 	# disp.showMap() # functionarilty 2, show the data on a map in tkinter
-	disp.Update()
+	# disp.createTerminalAxis() # functionality 4, show data on terminal axis instead of the tkinter axis
+	# disp.Update()
 
 	# data = getAllData("NO2", days=2)
 	# with open("data.txt", "a") as f:
@@ -1670,7 +1569,9 @@ if __name__ == "__main__":
 
 	# neuralNetwork() # functionality 3, use a neural network to predict the pollution levels in the future for a given hour of the day
 
-	# functionality 4, any of the functions above
+	# something cool that copilot came up with -> use a genetic algorithm to find the best architecture for a neural network to predict the pollution levels in the future for a given hour of the day
+
+	pass
 	
 	
 

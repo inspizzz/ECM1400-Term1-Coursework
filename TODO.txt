@@ -8,7 +8,17 @@ monitoring
 
 
 main
-    - code it
-    - add tests for each function if possible
+    - add functionality for the monitoring module 
+        - neural net
+        - graph displays
+        - other functions
+
+    - add functionality for the intelligence module as well
+        - all the functiona in that
+
+    
+    - comment each function well
 
 utils
+
+ and then finally have enough of this mess of a project

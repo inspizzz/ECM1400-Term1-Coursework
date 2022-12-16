@@ -45,7 +45,7 @@ def maxValue(values):
     # catches any type errors
     try:
         # find the maximum value in the list and return
-        max = -99999
+        max = float("-inf")
         for i in values:
             if i > max:
                 max = i
@@ -74,7 +74,7 @@ def minValue(values):
     try:
 
         # find the minimum value in the list and return
-        min = 999999
+        min = float("inf")
         for i in values:
             if i < min:
                 min = i

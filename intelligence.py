@@ -84,6 +84,11 @@ def detect_connected_components(arr:list) -> list: # done
         - a 2d array of the same size as the input array with the connected components marked with different numbers
     '''
     
+    # clear the file
+    with open("./data/output/cc-output-2a.txt", "a") as f:  
+        f.seek(0)
+        f.truncate(0)
+    
     # define the height and width of the image
     HEIGHT = len(arr)
     WIDTH = len(arr[0])
@@ -134,11 +139,9 @@ def detect_connected_components(arr:list) -> list: # done
 
                 # save to file as required by the specification
                 with open("./data/output/cc-output-2a.txt", "a") as f:  
-                    f.seek(0)
-                    f.truncate()
                     print(f"connected component {component_counter}, number of pixels = {pixel_counter}")  
                     f.writelines([f"connected component {component_counter}, number of pixels = {pixel_counter}\n"])
-                
+            
                 # increment the component counter
                 component_counter += 1
 
@@ -190,19 +193,29 @@ def detect_connected_components_sorted(mark:list) -> dict: # done
         if sorted:
             break
         
-    # add information to file as required by the specification
+    # clear file and add information to file as required by the specification
     with open("./data/output/cc-output-2b.txt", "a") as f:
+        f.seek(0)
+        f.truncate(0)
+
         for key, value in zip(keys, values):
             f.writelines([f"Connected Component {str(key)}, number of pixels = {str(value)}\n"])
             sorted_dict.setdefault(key, value)
         f.writelines([f"Total number of connected components = {len(dict)}\n"])
 
-    # add top two components into file as required by the specification
-    with open("./data/output/cc-top-2.txt", "a") as f:
-        print(f"Connected Component {str(keys[0])}, number of pixels = {str(values[0])}")
-        print(f"Connected Component {str(keys[1])}, number of pixels = {str(values[1])}")
-        f.writelines([f"Connected Component {str(keys[0])}, number of pixels = {str(values[0])}\n"])
-        f.writelines([f"Connected Component {str(keys[1])}, number of pixels = {str(values[1])}\n"])
+    # add top two components into image file as required by the specification
+    for row in range(0, len(mark)):
+        for pixel in range(0, len(mark[0])):
+            if str(mark[row][pixel]) == str(keys[0]) or str(mark[row][pixel]) == str(keys[1]):
+                mark[row][pixel] = 255
+            else:
+                mark[row][pixel] = 0
+
+
+
+    io.imsave("./data/output/cc-top-2.jpg", mark)
+
+
 
     return sorted_dict
 
@@ -211,7 +224,7 @@ if __name__ == "__main__":
     mark = detect_connected_components(red)
     detect_connected_components_sorted(mark)
 
-    cyan = find_cyan_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
-    mark = detect_connected_components(cyan)
-    detect_connected_components_sorted(mark)
+    # cyan = find_cyan_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
+    # mark = detect_connected_components(cyan)
+    # detect_connected_components_sorted(mark)
 

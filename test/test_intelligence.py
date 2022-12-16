@@ -52,19 +52,19 @@ def test_detect_connected_components_sorted():
     mark = intelligence.detect_connected_components(red)
     sorted = intelligence.detect_connected_components_sorted(mark)
 
-    assert (130, 12364) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (1, 892) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (32, 108) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (210, 4) in list(intelligence.detect_connected_components_sorted(mark).items())
+    assert (130, 12364) in list(sorted.items())
+    assert (1, 892) in list(sorted.items())
+    assert (32, 108) in list(sorted.items())
+    assert (210, 4) in list(sorted.items())
 
     cyan = intelligence.find_cyan_pixels(filename="./data/map.png", upperThreshold=100, lowerThreshold=50)
     mark = intelligence.detect_connected_components(cyan)
     sorted = intelligence.detect_connected_components_sorted(mark)
 
-    assert (1, 15140) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (102, 240) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (141, 32) in list(intelligence.detect_connected_components_sorted(mark).items())
-    assert (210, 4) in list(intelligence.detect_connected_components_sorted(mark).items())
+    assert (1, 15140) in list(sorted.items())
+    assert (102, 240) in list(sorted.items())
+    assert (141, 32) in list(sorted.items())
+    assert (210, 4) in list(sorted.items())
 
     print("detect_connected_components_sorted Passed")
 
